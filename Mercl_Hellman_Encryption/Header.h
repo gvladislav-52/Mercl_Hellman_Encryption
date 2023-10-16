@@ -20,11 +20,12 @@ private:
 	std::vector<int> vector_encryption;
 	std::vector<std::string> dec_vec;
 	std::string word;
-	int gcdExtended(int a, int b, int& x, int& y);
+	int gcd_Extended(int a, int b, int& x, int& y);
 	bool is_prime(int n);
 	std::string to_binary(int decimal);
-	int multiplicativeInverse(int a, int m);
+	int multiplicative_Inverse(int a, int m);
 	std::string getWord();
+	std::vector<int> decimalValues;
 public:
 	void setWord();
 	void setVector_String();
@@ -34,6 +35,7 @@ public:
 	void public_key();
 	void encryption();
 	void decryption();
-	void Function_Debu();
+	void function_Show();
+	void binaryToDecimal(const std::vector<std::string>& binaryValues);
 };
 #endif // !HEADER_H_

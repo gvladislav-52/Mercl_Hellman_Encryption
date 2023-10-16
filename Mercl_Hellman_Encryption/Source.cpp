@@ -78,7 +78,7 @@ void Merkle_Hellman::encryption()
 
 void Merkle_Hellman::decryption()
 {
-	int r_shtix = multiplicativeInverse(r, q); 
+	int r_shtix = multiplicative_Inverse(r, q); 
 	std::sort(rbegin(vector_first), rend(vector_first));
 
 	std::vector<int>temp;
@@ -109,24 +109,25 @@ void Merkle_Hellman::decryption()
 		reverse(index.begin(), index.end());
 		dec_vec.push_back(index);
 	}
+	binaryToDecimal(dec_vec);
 }
 
-int Merkle_Hellman::gcdExtended(int a, int b, int& x, int& y) {
+int Merkle_Hellman::gcd_Extended(int a, int b, int& x, int& y) {
 	if (a == 0) {
 		x = 0;
 		y = 1;
 		return b;
 	}
 	int x1, y1;
-	int gcd = gcdExtended(b % a, a, x1, y1);
+	int gcd = gcd_Extended(b % a, a, x1, y1);
 	x = y1 - (b / a) * x1;
 	y = x1;
 	return gcd;
 }
 
-int Merkle_Hellman::multiplicativeInverse(int a, int m) {
+int Merkle_Hellman::multiplicative_Inverse(int a, int m) {
 	int x, y;
-	int gcd = gcdExtended(a, m, x, y);
+	int gcd = gcd_Extended(a, m, x, y);
 	if (gcd != 1) {
 		return -1; 
 	}
@@ -135,13 +136,37 @@ int Merkle_Hellman::multiplicativeInverse(int a, int m) {
 	}
 }
 
-void Merkle_Hellman::Function_Debu()
+void Merkle_Hellman::binaryToDecimal(const std::vector<std::string>& binaryValues)
+{
+	for (const auto& binary : binaryValues)
+	{
+		int decimal = 0;
+		int base = 1;
+
+		for (int i = binary.size() - 1; i >= 0; --i)
+		{
+			if (binary[i] == '1')
+			{
+				decimal += base;
+			}
+			base *= 2;
+		}
+
+		decimalValues.push_back(decimal);
+	}
+
+}
+
+void Merkle_Hellman::function_Show()
 {
 	using std::cout;
 	using std::endl;
 	cout << "Q:\t" << q << endl;
 	cout << "R:\t" << r << endl;
 	cout << "R':\t" << r_shtix << endl;
+	//cout << "Word:\t";
+	//char k = word[0];
+	//cout << (int)k << endl;
 	cout << "Vector_first:\t";
 	for (auto c : vector_first)
 		cout << c << " ";
@@ -156,8 +181,11 @@ void Merkle_Hellman::Function_Debu()
 	cout << "Encryption:\t";
 	for (auto c : vector_encryption)
 		cout << c << " ";
-	cout << endl;
 	cout << "\nBin string:\t";
 	for (auto c : dec_vec)
 		cout << c << " ";
+	cout << "\nDecryption:\t";
+	cout << decimalValues.size() << endl;
+	for (auto c : decimalValues)
+		std::cout << (char)c << " ";
 }

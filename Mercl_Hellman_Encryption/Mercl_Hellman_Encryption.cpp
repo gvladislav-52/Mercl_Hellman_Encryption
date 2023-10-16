@@ -13,5 +13,6 @@ int main()
 	object.setVector_String();
 	object.encryption();
 	object.decryption();
-	object.Function_Debu();
+	object.function_Show();
+
 }
