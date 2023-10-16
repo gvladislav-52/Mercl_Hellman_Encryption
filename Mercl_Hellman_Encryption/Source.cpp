@@ -2,11 +2,15 @@
 
 std::string Merkle_Hellman::to_binary(int decimal)
 {
-	std::string binary = "";
+	std::string binary;
 	while (decimal > 0)
 	{
 		binary = std::to_string(decimal % 2) + binary;
 		decimal /= 2;
+	}
+	while (binary.length() < 7)
+	{
+		binary = "0" + binary;
 	}
 	return binary;
 }
@@ -185,7 +189,6 @@ void Merkle_Hellman::function_Show()
 	for (auto c : dec_vec)
 		cout << c << " ";
 	cout << "\nDecryption:\t";
-	cout << decimalValues.size() << endl;
 	for (auto c : decimalValues)
 		std::cout << (char)c << " ";
 }
