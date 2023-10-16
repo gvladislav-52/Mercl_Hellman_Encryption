@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -14,8 +15,8 @@ string to_binary(int decimal)
 		binary = to_string(decimal % 2) + binary;
 		decimal /= 2;
 	}
-	while (binary.length() < 7)
-		binary = "0" + binary;
+	//while (binary.length() < 7)
+	//	binary = "0" + binary;
 	return binary;
 }
 bool is_prime(int n) 
@@ -50,46 +51,87 @@ void public_key(const vector<int>& old_key,vector<int>& new_key,int &r,int &q)
 		new_key.push_back(c*r%q);
 }
 
-void encryption(vector<int> &vector_encryption, string** matrix, const vector<int> &vector_second,string &word)
+void encryption(vector<int> &vector_encryption, vector<string>&vector_str, const vector<int> &vector_second,string &word)
 {
-	int sum = 0;
-
-	for (int i = 0; i < word.length(); i++)
+	for (const auto& str : vector_str)
 	{
-		for (int j = 0; j < 8; j++) {
-			if (stoi(matrix[i][j]) == 1)
+		int sum = 0;
+		for (int i = 0; i < str.length(); i++)
+		{
+			if (str[i] == '1')
 			{
 				sum += vector_second[i];
 			}
-			vector_encryption.push_back(sum);
 		}
+		vector_encryption.push_back(sum);
 	}
 }
 
-string** create_matrix(string row,int col)
+void decryption(vector<int>&vector_first,vector<int>& vector_encryption,int &q,int &r_shtix)
 {
-	string** matrix = new string * [stoi(row)];
-	for (int i = 0; i < stoi(row); i++)
-		matrix[i] = new string[col];
-	return matrix;
-}
+	sort(rbegin(vector_first), rend(vector_first));
 
-void fill_matrix(string** matrix, string row, int col)
-{
-	for (int i = 0; i < row.length(); i++)
+	vector<int>temp;
+	for(auto i: vector_encryption)
+		temp.push_back(i * r_shtix % q);
+	cout << "Mode: ";
+	for (auto c : temp)
+		cout << c << " ";
+	cout << "\nBin string: ";
+	vector<string> dec_vec;
+	for (int i = 0; i < temp.size(); i++)
 	{
-		for (int j = 0; j < 8; j++)
+		string index = "";
+		while (temp[i] != 0)
 		{
-			matrix[i][j] = to_binary(row[j]);
+			for(int c = 0; c < vector_first.size(); c++)
+			{
+				if (c == 0)
+					continue;
+				//if (temp[i] == 0)
+				//	break;
+				//else
+					if (temp[i] < vector_first[c])
+					{
+						index += "0";
+						continue;
+					}
+					else
+					{
+						index += "1";
+						temp[i] -= vector_first[c];
+					}
+			}
 		}
+		reverse(index.begin(), index.end());
+		dec_vec.push_back(index);
 	}
+	for (auto c : dec_vec)
+		cout << c << " ";
 }
 
-void deleteMatrix(string** matrix, string row) {
-	for (int i = 0; i < row.length(); i++) {
-		delete[] matrix[i];
+int gcdExtended(int a, int b, int& x, int& y) {
+	if (a == 0) {
+		x = 0;
+		y = 1;
+		return b;
 	}
-	delete[] matrix;
+	int x1, y1;
+	int gcd = gcdExtended(b % a, a, x1, y1);
+	x = y1 - (b / a) * x1;
+	y = x1;
+	return gcd;
+}
+
+int multiplicativeInverse(int a, int m) {
+	int x, y;
+	int gcd = gcdExtended(a, m, x, y);
+	if (gcd != 1) {
+		return -1; // обратного элемента не существует
+	}
+	else {
+		return (x % m + m) % m; // мультипликативное обратное равно x (mod m)
+	}
 }
 
 int main()
@@ -100,26 +142,33 @@ int main()
 	intilization_vector(vector_first);
 	int q = intilization_Q(vector_first);
 	int r = intilization_R();
+	int r_shtix = multiplicativeInverse(r, q);
 	public_key(vector_first, vector_second,r,q);
 	string word;
 	getline(cin, word);
 
-	string** matrix = create_matrix(word, 8);
-	fill_matrix(matrix, word, 8);
+	vector<string> vec_str;
+	for (int i = 0; i < word.length(); i++)
+		vec_str.push_back(to_binary(word[i]));
 	vector<int> vector_encryption;
-	encryption(vector_encryption, matrix, vector_second, word);
-	cout << "Q: " << q << endl;
-	cout << "R: " << r << endl;
-	cout << "Vector_first: ";
+	encryption(vector_encryption, vec_str, vector_second, word);
+	cout << "Q:\t" << q << endl;
+	cout << "R:\t" << r << endl;
+	cout << "R':\t" << r_shtix << endl;
+	cout << "Vector_first:\t";
 	for (auto c : vector_first)
 	cout << c << " ";
-	cout << "\nVector_second: ";
+	cout << "\nVector_second:\t";
 	for (auto c : vector_second)
 		cout << c << " ";
 	cout << endl;
-	cout << "Word:\n";
+	cout << "Word:\t\t";
+	for (auto c : vec_str)
+		cout << c << " ";
+	cout << endl;
+	cout << "Encryption:\t";
 	for (auto c : vector_encryption)
 		cout << c << " ";
 	cout << endl;
-	deleteMatrix(matrix, word);
+	decryption(vector_first, vector_encryption,q, r_shtix);
 }
